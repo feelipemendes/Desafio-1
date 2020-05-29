@@ -7,7 +7,7 @@ let filteredPeople = null;
 
 let countFemale = null;
 let countMale = null;
-let sumAge = null;
+let totalAge = null;
 let averageAge = null;
 
 let tabFilterUsers = null;
@@ -20,24 +20,19 @@ window.addEventListener('load', () => {
   tabFilterUsers = document.querySelector('#tabFilterUsers');
   tabStatistic = document.querySelector('#tabStatistic');
 
-  doFetchAsync();
-
   botaoBuscar = document.querySelector('#botaoBuscar');
   inputBuscar = document.querySelector('#inputBuscar');
 
+  doFetchAsync();
+
   inputBuscar.addEventListener('keyup', handleFormSubmit);
+  botaoBuscar.addEventListener('click', handleFormSubmit);
 });
-// //Função para pegar o
 function handleFormSubmit(event) {
-  if (inputBuscar.value !== '') {
-    botaoBuscar.classList.remove('disabled');
-  } else {
-    botaoBuscar.classList.add('disabled');
-  }
+  checkButtonSubmit();
 
   if (event.key === 'Enter') {
-    doFilter(event.target.value);
-    //console.log(event.target.value);
+    doFilter(inputBuscar.value);
   }
 }
 function doFilter(firstName) {
@@ -48,22 +43,6 @@ function doFilter(firstName) {
     .sort((a, b) => {
       return a.name.localeCompare(b.name);
     });
-
-  totalPeople = filteredPeople.length;
-
-  countFemale = filteredPeople.filter((person) => {
-    return person.gender === 'female';
-  }).length;
-
-  countMale = filteredPeople.filter((person) => {
-    return person.gender === 'male';
-  }).length;
-
-  sumAge = filteredPeople.reduce((accumulator, current) => {
-    return (accumulator += current.dob);
-  }, 0);
-
-  averageAge = sumAge / totalPeople;
 
   render();
 }
@@ -84,6 +63,11 @@ async function doFetchAsync() {
 }
 
 function render() {
+  calcTotalPeople();
+  sumFemale();
+  sumMale();
+  sumTotalAge();
+  calcAverageAge(totalAge, totalPeople);
   renderPeopleList();
   renderStatistic();
 }
@@ -124,7 +108,7 @@ function renderStatistic() {
                             Sexo Masculino: <strong>${countMale}</strong>
                           </p>
                           <p>
-                            Soma das Idades: <strong>${sumAge}</strong>
+                            Soma das Idades: <strong>${totalAge}</strong>
                           </p>
                           <p>
                             Média das Idades: <strong>${averageAge.toFixed(
@@ -132,4 +116,36 @@ function renderStatistic() {
                             )}</strong>
                           </p>`;
   tabStatistic.innerHTML = statisticHtml;
+}
+function calcTotalPeople() {
+  totalPeople = filteredPeople.length;
+}
+function sumFemale() {
+  countFemale = filteredPeople.filter((person) => {
+    return person.gender === 'female';
+  }).length;
+}
+function sumMale() {
+  countMale = filteredPeople.filter((person) => {
+    return person.gender === 'male';
+  }).length;
+}
+function sumTotalAge() {
+  totalAge = filteredPeople.reduce((accumulator, current) => {
+    return (accumulator += current.dob);
+  }, 0);
+}
+function calcAverageAge() {
+  if (totalPeople === 0) {
+    averageAge = 0;
+    return;
+  }
+  averageAge = totalAge / totalPeople;
+}
+function checkButtonSubmit() {
+  if (inputBuscar.value !== '') {
+    botaoBuscar.classList.remove('disabled');
+  } else {
+    botaoBuscar.classList.add('disabled');
+  }
 }
